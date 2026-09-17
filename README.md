@@ -38,12 +38,19 @@ docker compose up -d --build    # يشغّل PostgreSQL + ينشئ الجداو�
 - Build command: `npm run vercel-build` &nbsp;|&nbsp; Start command: `npm start`
 - أو استخدم `Dockerfile` الموجود مباشرة (يدعم `output: standalone`).
 
-### النشر التلقائي من GitHub Actions
+### النشر التلقائي من GitHub Actions (بدون فتح لوحة Vercel)
 
-- `.github/workflows/ci.yml`: يفحص الكود (typecheck + lint + build) عند كل push.
-- `.github/workflows/deploy-vercel.yml`: ينشر إلى Vercel عند كل push إلى `main`.
-  يحتاج إلى Secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
-  (إذا ربطت المستودع من لوحة Vercel مباشرة فلست بحاجة لهذا الملف — Vercel ينشر وحده).
+`.github/workflows/deploy-vercel.yml` ينشر الموقع من خوادم GitHub. يحتاج **سرّين فقط**
+(Settings → Secrets and variables → Actions → New repository secret):
+
+| السر | من أين |
+|---|---|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → Create |
+| `DATABASE_URL` | [neon.tech](https://neon.tech) → New project → Connection string |
+
+بعدها: تبويب **Actions** → **Deploy to Vercel** → **Run workflow**. ينشئ المشروع على Vercel،
+يضبط متغير البيئة، ينشئ الجداول ويعبّئ المنتجات، وينشر — ويطبع رابط الموقع في ملخص التشغيل.
+كل push لاحق إلى `main` يعيد النشر تلقائياً.
 
 ---
 
