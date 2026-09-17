@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-ibm-arabic), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-amiri), "Amiri", serif;
+
+  --color-cream: #faf7f0;
+  --color-parchment: #f3ecdf;
+  --color-sand: #e9dfc9;
+  --color-ink: #0d1e30;
+  --color-ink-soft: #2e4356;
+  --color-lapis: #16467e;
+  --color-lapis-deep: #0f3057;
+  --color-lapis-soft: #dce7f3;
+  --color-gold: #c19a49;
+  --color-gold-deep: #96762f;
+  --color-gold-soft: #f1e5c8;
+  --color-blush: #b4644a;
+
+  --shadow-card: 0 1px 2px rgba(13, 30, 48, 0.05), 0 12px 32px -12px rgba(13, 30, 48, 0.16);
+  --shadow-lift: 0 2px 4px rgba(13, 30, 48, 0.06), 0 24px 48px -16px rgba(13, 30, 48, 0.28);
+
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: #fff;
+}
+
+/* Subtle Babylonian star pattern for dark sections */
+.pattern-ishtar {
+  background-color: var(--color-lapis-deep);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(193, 154, 73, 0.14) 1px, transparent 1.5px),
+    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px),
+    radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
+/* Subtle dot texture on light sections */
+.pattern-dots {
+  background-image: radial-gradient(circle at 50% 50%, rgba(22, 70, 126, 0.07) 1px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Elegant thin scrollbar for drawers */
+.thin-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-sand);
+  border-radius: 999px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
