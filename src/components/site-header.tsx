@@ -143,7 +143,12 @@ export function SiteHeader({ categories }: { categories: NavCat[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setMenuOpen(false), [pathname]);
+  // Close the mobile menu whenever the route changes (derive during render instead of an effect).
+  const [menuPath, setMenuPath] = useState(pathname);
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setMenuOpen(false);
+  }
 
   const nav = [
     { href: "/", label: "الرئيسية" },

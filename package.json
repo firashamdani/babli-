@@ -1,14 +1,20 @@
 {
-  "name": "nextjs-postgresql-template",
+  "name": "babli-store",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push --force",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:setup": "npm run db:push && npm run db:seed",
+    "vercel-build": "drizzle-kit push --force && tsx src/db/seed.ts && next build"
   },
   "dependencies": {
+    "@fontsource/amiri": "^5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
     "clsx": "^2.1.1",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
@@ -32,5 +38,8 @@
     "postcss": "8.5.8",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

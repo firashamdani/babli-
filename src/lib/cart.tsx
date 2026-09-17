@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 
 export type CartItem = {
   id: number;
@@ -32,19 +32,35 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 const LS_KEY = "bably-cart-v1";
 
+function readStoredCart(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  // Subscribe to the "mounted" signal via useSyncExternalStore so the server render and the
+  // first client render both see an empty cart (no hydration mismatch), then load localStorage.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) setItems(JSON.parse(raw));
-    } catch {
-      /* ignore */
+    // Runs once after mount: pull the persisted cart in a callback (not synchronously in render).
+    const stored = readStoredCart();
+    if (stored.length) {
+      const id = window.setTimeout(() => setItems(stored), 0);
+      return () => window.clearTimeout(id);
     }
-    setHydrated(true);
   }, []);
 
   useEffect(() => {
