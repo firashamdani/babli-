@@ -1,0 +1,57 @@
+# ينشر الموقع إلى Vercel من خوادم GitHub (لا يحتاج ربط المستودع من لوحة Vercel).
+# المطلوب سرّان فقط في: Settings → Secrets and variables → Actions
+#   VERCEL_TOKEN  – أنشئه من https://vercel.com/account/tokens
+#   DATABASE_URL  – رابط PostgreSQL (مثلاً من https://neon.tech — اختر منطقة Frankfurt)
+# يعمل تلقائياً عند كل push إلى main، أو يدوياً من تبويب Actions → Run workflow.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check secrets
+        run: |
+          [ -n "$VERCEL_TOKEN" ] || { echo "::error::Missing secret VERCEL_TOKEN"; exit 1; }
+          [ -n "${{ secrets.DATABASE_URL }}" ] || { echo "::error::Missing secret DATABASE_URL"; exit 1; }
+
+      - run: npm i -g vercel@latest
+
+      - name: Link project (created automatically on first run)
+        run: vercel link --yes --project babli --token="$VERCEL_TOKEN"
+
+      - name: Set DATABASE_URL on the Vercel project
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          vercel env rm DATABASE_URL production --yes --token="$VERCEL_TOKEN" >/dev/null 2>&1 || true
+          printf '%s' "$DATABASE_URL" | vercel env add DATABASE_URL production --token="$VERCEL_TOKEN"
+
+      - name: Deploy to production
+        id: deploy
+        run: |
+          url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### 🚀 الموقع منشور: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Smoke test
+        run: |
+          sleep 5
+          curl -fsS "${{ steps.deploy.outputs.url }}/api/health"
+          curl -fsS -o /dev/null -w "home: %{http_code}\n" "${{ steps.deploy.outputs.url }}/"

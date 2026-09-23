@@ -791,7 +791,16 @@ const REVIEWS: Record<string, { author: string; city: string; rating: number; co
 async function main() {
   console.log("Seeding Bably storefront…");
 
-  await db.delete(orders);
+  // Safety: never wipe a live store by accident. If products already exist, only reseed
+  // when explicitly asked (SEED_FORCE=1 or --force). Orders are kept unless --force is used.
+  const force = process.env.SEED_FORCE === "1" || process.argv.includes("--force");
+  const existing = await db.select({ id: products.id }).from(products).limit(1);
+  if (existing.length && !force) {
+    console.log("Database already has products — skipping seed. Run with --force to reseed.");
+    process.exit(0);
+  }
+
+  if (force) await db.delete(orders);
   await db.delete(reviews);
   await db.delete(products);
   await db.delete(categories);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SlidersHorizontal, X, Search, ChevronDown, BadgePercent, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/format";
@@ -49,10 +49,13 @@ export function FiltersBar({ categories, count }: { categories: Cat[]; count: nu
 
   const [minVal, setMinVal] = useState(current.min);
   const [maxVal, setMaxVal] = useState(current.max);
-  useEffect(() => {
+  // Re-sync the price inputs when the URL changes (derived during render, not in an effect).
+  const [syncedRange, setSyncedRange] = useState(`${current.min}|${current.max}`);
+  if (syncedRange !== `${current.min}|${current.max}`) {
+    setSyncedRange(`${current.min}|${current.max}`);
     setMinVal(current.min);
     setMaxVal(current.max);
-  }, [current.min, current.max]);
+  }
 
   const activeCount =
     [current.cat, current.collection, current.min, current.max, current.rating].filter(Boolean).length +
